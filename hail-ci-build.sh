@@ -35,11 +35,6 @@ do
 
     CLUSTERS="${CLUSTERS} ${CLUSTER_NAME_0_2} ${CLUSTER_NAME_0_1}"
 
-    ls -al $(which cluster)
-    cat $(which cluster)
-
-    exit 1
-
     # check binary exists
     time cluster start --help
 
