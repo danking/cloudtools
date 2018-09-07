@@ -22,7 +22,6 @@ trap "exit 42" INT TERM
 for PY_VERSION in 2 3
 do
     PIP=pip${PY_VERSION}
-    PYTHON=python${PY_VERSION}
 
     $PIP install ./
 
