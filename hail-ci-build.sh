@@ -55,5 +55,5 @@ do
          cluster-sanity-check-0.1.py
     time cluster stop --async ${CLUSTER_NAME_0_1}
 
-    $PIP uninstall cloudtools
+    yes | $PIP uninstall cloudtools
 done
