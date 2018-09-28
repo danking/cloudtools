@@ -11,4 +11,4 @@ def main(args):
     if vars(args)['async']:
         cmd.append('--async')
 
-    safe_call(cmd)
+    safe_call(*cmd)

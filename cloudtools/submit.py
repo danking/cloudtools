@@ -46,4 +46,4 @@ def main(args):
     print(' '.join(cmd[:6]) + ' \\\n    ' + ' \\\n    '.join(cmd[6:]))
 
     # submit job
-    safe_call(cmd)
+    safe_call(*cmd)

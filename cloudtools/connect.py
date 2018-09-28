@@ -1,5 +1,3 @@
-import os
-from subprocess import Popen, check_call
 from .safe_call import safe_call
 
 def init_parser(parser):

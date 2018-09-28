@@ -235,4 +235,4 @@ def main(args):
     # spin up cluster
     if not args.dry_run:
         print("Starting cluster '{}'...".format(args.name))
-        safe_call(cmd)
+        safe_call(*cmd)
