@@ -1,4 +1,4 @@
-from subprocess import check_call
+from .safe_call import safe_call
 
 def init_parser(parser):
     parser.add_argument('name', type=str, help='Cluster name.')
@@ -11,4 +11,4 @@ def main(args):
     if vars(args)['async']:
         cmd.append('--async')
 
-    check_call(cmd)
+    safe_call(cmd)

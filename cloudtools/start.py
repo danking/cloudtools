@@ -1,4 +1,5 @@
-from subprocess import call, check_call, check_output
+from subprocess import call, check_output
+from .safe_call import safe_call
 import sys
 import json
 from . import __version__
@@ -234,4 +235,4 @@ def main(args):
     # spin up cluster
     if not args.dry_run:
         print("Starting cluster '{}'...".format(args.name))
-        check_call(cmd)
+        safe_call(cmd)

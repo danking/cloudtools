@@ -1,5 +1,5 @@
 import sys
-from subprocess import check_call
+from .safe_call import safe_call
 
 
 def init_parser(parser):
@@ -52,7 +52,7 @@ def main(args):
         # Update cluster
         if not args.dry_run:
             print("Updating cluster '{}'...".format(args.name))
-            check_call(cmd, stdout=sys.stdout, stderr=sys.stderr)
+            safe_call(cmd, stdout=sys.stdout, stderr=sys.stderr)
 
     if (args.jar is not None):
         print('gcloud jar update command(s):')
@@ -98,4 +98,4 @@ def _scp_and_sudo_move(source, destination_host, destination, zone):
 
     for cmd in cmds:
         print(cmd)
-        check_call(cmd, stdout=sys.stdout, stderr=sys.stderr)
+        safe_call(cmd, stdout=sys.stdout, stderr=sys.stderr)
