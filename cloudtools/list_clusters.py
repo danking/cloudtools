@@ -1,4 +1,4 @@
-from .safe_call import safe_call
+from subprocess import check_call
 
 def main(args):
-    safe_call('gcloud', 'dataproc', 'clusters', 'list')
+    check_call(['gcloud', 'dataproc', 'clusters', 'list'])
