@@ -1,24 +1,26 @@
 #!/usr/bin/python
-import os
 import json
+import os
 import subprocess as sp
+import sys
 from subprocess import check_output
 
-import sys
-print('python version is {}'.format(sys.version_info))
 if sys.version_info >= (3,0):
     # Python 3 check_output returns a byte string
     decode_f = lambda x: x.decode()
-    def check_call(*args):
-        sp.run(args, capture_output=True, check=True)
 else:
     # In Python 2, bytes and str are the same
     decode_f = lambda x: x
-    def check_call(*args):
+
+if sys.version_info >= (3,7):
+    def safe_call(*args):
+        sp.run(args, capture_output=True, check=True)
+else:
+    def safe_call(*args):
         try:
             sp.check_output(args, stderr=sp.STDOUT)
         except sp.CalledProcessError as e:
-            print(e.output)
+            print(decode_f(e.output))
             raise e
 
 def get_metadata(key):
@@ -84,17 +86,17 @@ if role == 'Master':
     else:
         pip_pkgs.extend(user_pkgs.split(','))
 
-    check_call('/opt/conda/bin/conda', 'update', 'setuptools')
+    safe_call('/opt/conda/bin/conda', 'update', 'setuptools')
 
     print('conda packages are {}'.format(conda_pkgs))
     command = ['/opt/conda/bin/conda', 'install']
     command.extend(conda_pkgs)
-    check_call(*command)
+    safe_call(*command)
 
     print('pip packages are {}'.format(pip_pkgs))
     command = ['/opt/conda/bin/pip', 'install']
     command.extend(pip_pkgs)
-    check_call(*command)
+    safe_call(*command)
 
     py4j = decode_f(check_output('ls /usr/lib/spark/python/lib/py4j*', shell=True).strip())
 
@@ -104,8 +106,8 @@ if role == 'Master':
     zip_path = get_metadata('ZIP')
 
     print('copying jar and zip')
-    check_call('gsutil', 'cp', jar_path, '/home/hail/hail.jar')
-    check_call('gsutil', 'cp', zip_path, '/home/hail/hail.zip')
+    safe_call('gsutil', 'cp', jar_path, '/home/hail/hail.jar')
+    safe_call('gsutil', 'cp', zip_path, '/home/hail/hail.zip')
 
     env_to_set = {
         'PYTHONHASHSEED': '0',
@@ -119,7 +121,7 @@ if role == 'Master':
     print('setting environment')
 
     for e, value in env_to_set.items():
-        check_call('/bin/sh', '-c',
+        safe_call('/bin/sh', '-c',
                    'echo "export {}={}" | tee -a /etc/environment /usr/lib/spark/conf/spark-env.sh'.format(e, value))
 
     conf_to_set = [
@@ -133,7 +135,7 @@ if role == 'Master':
     print('setting spark-defaults.conf')
 
     for c in conf_to_set:
-        check_call('/bin/sh', '-c', 'echo "{}" >> /etc/spark/conf/spark-defaults.conf'.format(c))
+        safe_call('/bin/sh', '-c', 'echo "{}" >> /etc/spark/conf/spark-defaults.conf'.format(c))
 
     # modify custom Spark conf file to reference Hail jar and zip
 
@@ -170,10 +172,10 @@ if role == 'Master':
         f.write('\n'.join(opts) + '\n')
 
     # setup jupyter-spark extension
-    check_call('/opt/conda/bin/jupyter', 'serverextension', 'enable', '--user', '--py', 'jupyter_spark')
-    check_call('/opt/conda/bin/jupyter', 'nbextension', 'install', '--user', '--py', 'jupyter_spark')
-    check_call('/opt/conda/bin/jupyter', 'nbextension', 'enable', '--user', '--py', 'jupyter_spark')
-    check_call('/opt/conda/bin/jupyter', 'nbextension', 'enable', '--user', '--py', 'widgetsnbextension')
+    safe_call('/opt/conda/bin/jupyter', 'serverextension', 'enable', '--user', '--py', 'jupyter_spark')
+    safe_call('/opt/conda/bin/jupyter', 'nbextension', 'install', '--user', '--py', 'jupyter_spark')
+    safe_call('/opt/conda/bin/jupyter', 'nbextension', 'enable', '--user', '--py', 'jupyter_spark')
+    safe_call('/opt/conda/bin/jupyter', 'nbextension', 'enable', '--user', '--py', 'widgetsnbextension')
 
     # create systemd service file for Jupyter notebook server process
     with open('/lib/systemd/system/jupyter.service', 'w') as f:
@@ -195,6 +197,6 @@ if role == 'Master':
         f.write('\n'.join(opts) + '\n')
 
     # add Jupyter service to autorun and start it
-    check_call('systemctl', 'daemon-reload')
-    check_call('systemctl', 'enable', 'jupyter')
-    check_call('service', 'jupyter', 'start')
+    safe_call('systemctl', 'daemon-reload')
+    safe_call('systemctl', 'enable', 'jupyter')
+    safe_call('service', 'jupyter', 'start')
