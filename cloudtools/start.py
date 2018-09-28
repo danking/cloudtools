@@ -1,5 +1,4 @@
-from subprocess import call, check_output
-from subprocess import check_call
+from subprocess import call, check_call, check_output
 import sys
 import json
 from . import __version__
